@@ -1,3 +1,4 @@
+import { useMutation } from '@apollo/client';
 import {
   Avatar,
   IconButton,
@@ -7,24 +8,26 @@ import {
 } from '@material-ui/core';
 import { Delete } from '@material-ui/icons';
 import React from 'react';
+import { ADD_OR_REMOVE_FROM_QUEUE } from '../graphql/mutations';
 
-export default function QueuedSongList() {
+export default function QueuedSongList({ queue }) {
+  console.log('queue', { queue });
   const greaterThanMd = useMediaQuery((theme) => theme.breakpoints.up('md'));
 
-  const song = {
-    title: 'Domestic Bliss',
-    artist: 'Glass Animals',
-    thumbnail:
-      'https://images.pexels.com/photos/6869636/pexels-photo-6869636.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
-  };
+  // const song = {
+  //   title: 'Domestic Bliss',
+  //   artist: 'Glass Animals',
+  //   thumbnail:
+  //     'https://images.pexels.com/photos/6869636/pexels-photo-6869636.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
+  // };
 
   return (
     greaterThanMd && (
       <div style={{ margin: '10px 0' }}>
         <Typography color='textSecondary' variant='button'>
-          QUEUE (5)
+          QUEUE ({queue.length})
         </Typography>
-        {Array.from({ length: 5 }, () => song).map((song, i) => (
+        {queue.map((song, i) => (
           <QueuedSong key={i} song={song} />
         ))}
       </div>
@@ -55,7 +58,18 @@ const useStyles = makeStyles({
 });
 function QueuedSong({ song }) {
   const classes = useStyles();
+  const [addOrRemoveFromQueue] = useMutation(ADD_OR_REMOVE_FROM_QUEUE, {
+    onCompleted: (data) => {
+      localStorage.setItem('queue', JSON.stringify(data.addOrRemoveFromQueue));
+    },
+  });
   const { thumbnail, artist, title } = song;
+
+  function handleAddOrRemoveFromQueue() {
+    addOrRemoveFromQueue({
+      variables: { input: { ...song, __typename: 'Song' } },
+    });
+  }
   return (
     <div className={classes.container}>
       <Avatar src={thumbnail} alt='Song Thumbnail' className={classes.avatar} />
@@ -71,7 +85,7 @@ function QueuedSong({ song }) {
           {artist}
         </Typography>
       </div>
-      <IconButton>
+      <IconButton onClick={handleAddOrRemoveFromQueue}>
         <Delete color='error' />
       </IconButton>
     </div>

@@ -43,7 +43,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function SongPlayer() {
-  useQuery(GET_QUEUED_SONGS);
+  const { data } = useQuery(GET_QUEUED_SONGS);
   const { state, dispatch } = useContext(SongContext);
   const classes = useStyles();
   console.log(state);
@@ -84,7 +84,7 @@ export default function SongPlayer() {
         </div>
         <CardMedia className={classes.thumbnail} image={state.song.thumbnail} />
       </Card>
-      <QueuedSongList />
+      <QueuedSongList queue={data.queue} />
     </>
   );
 }
