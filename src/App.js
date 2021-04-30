@@ -27,7 +27,7 @@ function App() {
       <Hidden only='xs'>
         <Header />
       </Hidden>
-      <Grid container spacing={3}>
+      <Grid container spacing={0}>
         <Grid
           style={{ paddingTop: greaterThanSm ? 80 : 10 }}
           item
